@@ -1,0 +1,7 @@
+---
+
+- name: Microservice provision
+  hosts: ec2-backend
+  roles:
+    - base
+    - update

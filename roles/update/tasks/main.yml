@@ -1,0 +1,40 @@
+---
+
+- name: Package installer
+  apt:
+    name: ['docker.io', 'python3-pip']
+    state: latest
+  become: yes
+
+- name: install certain python modules for docker
+  pip:
+    name: ['docker','docker-py']
+    state: present
+  
+- name: Docker debug
+  shell: chmod 666 /var/run/docker.sock
+  become: yes
+
+- name: Create directory
+  shell: mkdir -p /home/ubuntu/backend-app && chmod 777 /home/ubuntu/backend-app
+  become: yes
+
+- name: Renew containers removing if exist
+  shell: docker rm -f backapp
+  become: yes
+
+- name: Remove previus images
+  shell: docker rmi -f backapp-img
+
+- name: Build and create container
+  shell: /home/ubuntu/backend-app/build.sh artifact
+
+- name: Copy files to server
+  copy: src={{ item }} dest=/home/ubuntu/backend-app mode=777
+  with_items:
+    - Dockerfile
+    - app
+    - build.sh
+  
+- name: Build and create container
+  shell: /home/ubuntu/backend-app/build.sh start
